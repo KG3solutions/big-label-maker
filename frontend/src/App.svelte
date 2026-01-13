@@ -10,8 +10,53 @@
   let showLibrary = $state(false);
   let darkMode = $state(false);
   let windowWidth = $state(0);
+  let windowHeight = $state(0);
 
   let isMobile = $derived(windowWidth < 800 || embedMode);
+
+  // Mobile swipe state - previewRatio is the fraction of available space for preview
+  // 0.67 = 2/3 preview (default), 0.33 = 1/3 preview (swiped up)
+  let previewRatio = $state(0.67);
+  let isDragging = $state(false);
+  let dragStartY = $state(0);
+  let dragStartRatio = $state(0.67);
+
+  // Calculate heights based on ratio (excluding header)
+  let mainHeight = $derived(windowHeight - 80); // Approximate header height
+  let previewHeight = $derived(isMobile ? Math.round(mainHeight * previewRatio) : 0);
+
+  function handleDragStart(e) {
+    if (!isMobile) return;
+    isDragging = true;
+    dragStartY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+    dragStartRatio = previewRatio;
+    document.body.style.userSelect = 'none';
+  }
+
+  function handleDragMove(e) {
+    if (!isDragging || !isMobile) return;
+
+    const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+    const deltaY = clientY - dragStartY;
+    const deltaRatio = deltaY / mainHeight;
+
+    // Swipe down = increase preview (positive delta = increase ratio)
+    // Swipe up = decrease preview (negative delta = decrease ratio)
+    let newRatio = dragStartRatio + deltaRatio;
+
+    // Clamp between 0.33 (1/3) and 0.67 (2/3)
+    newRatio = Math.max(0.33, Math.min(0.67, newRatio));
+    previewRatio = newRatio;
+  }
+
+  function handleDragEnd() {
+    if (!isDragging) return;
+    isDragging = false;
+    document.body.style.userSelect = '';
+
+    // Snap to nearest third (0.33 or 0.67)
+    previewRatio = previewRatio < 0.5 ? 0.33 : 0.67;
+  }
 
   onMount(() => {
     // Check localStorage or system preference
@@ -107,7 +152,14 @@
   }
 </script>
 
-<svelte:window bind:innerWidth={windowWidth} />
+<svelte:window
+  bind:innerWidth={windowWidth}
+  bind:innerHeight={windowHeight}
+  onmousemove={handleDragMove}
+  onmouseup={handleDragEnd}
+  ontouchmove={handleDragMove}
+  ontouchend={handleDragEnd}
+/>
 
 <div class="app no-print" class:embed-mode={embedMode} class:mobile-mode={isMobile}>
   <header class="header">
@@ -164,13 +216,45 @@
   </header>
 
   <main class="main">
-    <aside class="sidebar">
-      <ControlPanel />
-    </aside>
+    {#if isMobile}
+      <!-- Mobile layout with swipeable divider -->
+      <section
+        class="preview-area"
+        style="height: {previewHeight}px; flex: none;"
+      >
+        <PagePreview mobileMode={true} />
+      </section>
 
-    <section class="preview-area">
-      <PagePreview mobileMode={isMobile} />
-    </section>
+      <!-- Drag handle -->
+      <div
+        class="swipe-handle"
+        class:dragging={isDragging}
+        onmousedown={handleDragStart}
+        ontouchstart={handleDragStart}
+        role="separator"
+        aria-valuenow={Math.round(previewRatio * 100)}
+        aria-valuemin="33"
+        aria-valuemax="67"
+      >
+        <div class="handle-bar"></div>
+        <span class="handle-hint">
+          {previewRatio > 0.5 ? '↑ Swipe up for more options' : '↓ Swipe down for larger preview'}
+        </span>
+      </div>
+
+      <aside class="sidebar" style="flex: 1; overflow-y: auto;">
+        <ControlPanel />
+      </aside>
+    {:else}
+      <!-- Desktop layout -->
+      <aside class="sidebar">
+        <ControlPanel />
+      </aside>
+
+      <section class="preview-area">
+        <PagePreview mobileMode={false} />
+      </section>
+    {/if}
 
     {#if showLibrary}
       <aside class="library-panel">
@@ -322,28 +406,24 @@
 
   .app.mobile-mode .main {
     flex-direction: column;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
   }
 
   .app.mobile-mode .sidebar {
     width: 100%;
     min-width: unset;
     border-right: none;
-    border-bottom: 1px solid var(--color-border);
-    order: 2;
+    border-top: none;
   }
 
   .app.mobile-mode .preview-area {
-    order: 1;
     flex: none;
     padding: 0.5rem;
     min-height: auto;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
-    padding-top: 1rem;
-    padding-bottom: 0.5rem;
+    overflow: hidden;
   }
 
   .app.mobile-mode .library-panel {
@@ -351,8 +431,53 @@
     min-width: unset;
     border-left: none;
     border-top: 1px solid var(--color-border);
-    order: 3;
     max-height: 300px;
+  }
+
+  /* Swipe handle styles */
+  .swipe-handle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    cursor: ns-resize;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: background 0.15s ease;
+  }
+
+  .swipe-handle:hover,
+  .swipe-handle.dragging {
+    background: var(--color-border);
+  }
+
+  .swipe-handle.dragging {
+    cursor: grabbing;
+  }
+
+  .handle-bar {
+    width: 40px;
+    height: 4px;
+    background: var(--color-text-muted);
+    border-radius: 2px;
+    opacity: 0.5;
+  }
+
+  .swipe-handle:hover .handle-bar,
+  .swipe-handle.dragging .handle-bar {
+    opacity: 0.8;
+  }
+
+  .handle-hint {
+    font-size: 0.65rem;
+    color: var(--color-text-muted);
+    margin-top: 0.25rem;
+    opacity: 0.7;
   }
 
   /* Extra narrow screens */
