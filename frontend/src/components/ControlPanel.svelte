@@ -2,7 +2,7 @@
   import { labelStore, PAGE_SIZES } from '../stores/labelStore.js';
   import EmojiPicker from './EmojiPicker.svelte';
 
-  let showEmojiPicker = false;
+  let showEmojiPicker = $state(false);
 
   const fontFamilies = [
     'Arial',
@@ -42,7 +42,7 @@
       <select
         id="pageSize"
         value={$labelStore.pageSize}
-        on:change={(e) => labelStore.setPageSize(e.target.value)}
+        onchange={(e) => labelStore.setPageSize(e.target.value)}
       >
         {#each Object.entries(PAGE_SIZES) as [key, size]}
           <option value={key}>{size.name} ({size.width}" × {size.height}")</option>
@@ -55,13 +55,13 @@
       <div class="button-group">
         <button
           class:active={$labelStore.orientation === 'portrait'}
-          on:click={() => labelStore.setOrientation('portrait')}
+          onclick={() => labelStore.setOrientation('portrait')}
         >
           Portrait
         </button>
         <button
           class:active={$labelStore.orientation === 'landscape'}
-          on:click={() => labelStore.setOrientation('landscape')}
+          onclick={() => labelStore.setOrientation('landscape')}
         >
           Landscape
         </button>
@@ -78,7 +78,7 @@
           min="0"
           max="2"
           value={$labelStore.margins.top}
-          on:change={(e) => labelStore.setMargins({ top: parseFloat(e.target.value) })}
+          onchange={(e) => labelStore.setMargins({ top: parseFloat(e.target.value) })}
           placeholder="Top"
         />
         <div></div>
@@ -88,7 +88,7 @@
           min="0"
           max="2"
           value={$labelStore.margins.left}
-          on:change={(e) => labelStore.setMargins({ left: parseFloat(e.target.value) })}
+          onchange={(e) => labelStore.setMargins({ left: parseFloat(e.target.value) })}
           placeholder="Left"
         />
         <div class="margin-center">
@@ -100,7 +100,7 @@
           min="0"
           max="2"
           value={$labelStore.margins.right}
-          on:change={(e) => labelStore.setMargins({ right: parseFloat(e.target.value) })}
+          onchange={(e) => labelStore.setMargins({ right: parseFloat(e.target.value) })}
           placeholder="Right"
         />
         <div></div>
@@ -110,7 +110,7 @@
           min="0"
           max="2"
           value={$labelStore.margins.bottom}
-          on:change={(e) => labelStore.setMargins({ bottom: parseFloat(e.target.value) })}
+          onchange={(e) => labelStore.setMargins({ bottom: parseFloat(e.target.value) })}
           placeholder="Bottom"
         />
         <div></div>
@@ -127,9 +127,9 @@
         id="labelText"
         rows="3"
         value={$labelStore.text}
-        on:input={handleTextChange}
+        oninput={handleTextChange}
         placeholder="Enter your label text..."
-      />
+      ></textarea>
     </div>
 
     <div class="field">
@@ -137,7 +137,7 @@
       <select
         id="fontFamily"
         value={$labelStore.fontFamily}
-        on:change={(e) => labelStore.setFontFamily(e.target.value)}
+        onchange={(e) => labelStore.setFontFamily(e.target.value)}
       >
         {#each fontFamilies as font}
           <option value={font} style="font-family: {font}">{font}</option>
@@ -151,14 +151,14 @@
         <div class="button-group small">
           <button
             class:active={$labelStore.fontWeight === 'bold'}
-            on:click={() => labelStore.setFontWeight($labelStore.fontWeight === 'bold' ? 'normal' : 'bold')}
+            onclick={() => labelStore.setFontWeight($labelStore.fontWeight === 'bold' ? 'normal' : 'bold')}
             title="Bold"
           >
             <strong>B</strong>
           </button>
           <button
             class:active={$labelStore.fontStyle === 'italic'}
-            on:click={() => labelStore.setFontStyle($labelStore.fontStyle === 'italic' ? 'normal' : 'italic')}
+            onclick={() => labelStore.setFontStyle($labelStore.fontStyle === 'italic' ? 'normal' : 'italic')}
             title="Italic"
           >
             <em>I</em>
@@ -172,7 +172,7 @@
           type="color"
           id="textColor"
           value={$labelStore.textColor}
-          on:change={(e) => labelStore.setTextColor(e.target.value)}
+          onchange={(e) => labelStore.setTextColor(e.target.value)}
         />
       </div>
     </div>
@@ -182,21 +182,21 @@
       <div class="button-group">
         <button
           class:active={$labelStore.textAlign === 'left'}
-          on:click={() => labelStore.setTextAlign('left')}
+          onclick={() => labelStore.setTextAlign('left')}
         >Left</button>
         <button
           class:active={$labelStore.textAlign === 'center'}
-          on:click={() => labelStore.setTextAlign('center')}
+          onclick={() => labelStore.setTextAlign('center')}
         >Center</button>
         <button
           class:active={$labelStore.textAlign === 'right'}
-          on:click={() => labelStore.setTextAlign('right')}
+          onclick={() => labelStore.setTextAlign('right')}
         >Right</button>
       </div>
     </div>
 
     <div class="field">
-      <button class="btn-secondary full-width" on:click={() => labelStore.centerText()}>
+      <button class="btn-secondary full-width" onclick={() => labelStore.centerText()}>
         Center Text on Page
       </button>
       <p class="hint">Drag the text on the preview to reposition it</p>
@@ -207,7 +207,7 @@
         <input
           type="checkbox"
           checked={$labelStore.autoFitEnabled}
-          on:change={(e) => labelStore.setAutoFit(e.target.checked)}
+          onchange={(e) => labelStore.setAutoFit(e.target.checked)}
         />
         Auto-fit text to page
       </label>
@@ -222,7 +222,7 @@
           min="12"
           max="800"
           value={$labelStore.manualFontSize}
-          on:change={(e) => labelStore.setManualFontSize(parseInt(e.target.value))}
+          onchange={(e) => labelStore.setManualFontSize(parseInt(e.target.value))}
         />
       </div>
     {/if}
@@ -232,13 +232,13 @@
     <h2>Decorations</h2>
 
     <div class="field">
-      <button class="btn-secondary full-width" on:click={() => showEmojiPicker = !showEmojiPicker}>
+      <button class="btn-secondary full-width" onclick={() => showEmojiPicker = !showEmojiPicker}>
         Add Emoji
       </button>
     </div>
 
     {#if showEmojiPicker}
-      <EmojiPicker on:select={handleAddEmoji} on:close={() => showEmojiPicker = false} />
+      <EmojiPicker onselect={handleAddEmoji} onclose={() => showEmojiPicker = false} />
     {/if}
 
     {#if $labelStore.layers.length > 0}
@@ -248,8 +248,8 @@
           <div
             class="layer-item"
             class:selected={$labelStore.selectedLayerId === layer.id}
-            on:click={() => labelStore.selectLayer(layer.id)}
-            on:keydown={(e) => e.key === 'Enter' && labelStore.selectLayer(layer.id)}
+            onclick={() => labelStore.selectLayer(layer.id)}
+            onkeydown={(e) => e.key === 'Enter' && labelStore.selectLayer(layer.id)}
             role="button"
             tabindex="0"
           >
@@ -276,7 +276,7 @@
             </span>
             <button
               class="btn-icon"
-              on:click|stopPropagation={() => labelStore.removeLayer(layer.id)}
+              onclick={(e) => { e.stopPropagation(); labelStore.removeLayer(layer.id); }}
               title="Remove"
             >
               x

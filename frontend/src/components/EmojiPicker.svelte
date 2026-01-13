@@ -1,7 +1,5 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
-
-  const dispatch = createEventDispatcher();
+  let { onselect, onclose } = $props();
 
   // Common emoji categories
   const categories = {
@@ -15,19 +13,21 @@
     'Food': ['🍎', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🥑', '🍕', '🍔', '🍟', '🌭']
   };
 
-  let activeCategory = 'Smileys';
-  let searchQuery = '';
+  let activeCategory = $state('Smileys');
+  let searchQuery = $state('');
 
-  $: filteredEmojis = searchQuery
-    ? Object.values(categories).flat().filter(e => e.includes(searchQuery))
-    : categories[activeCategory];
+  let filteredEmojis = $derived(
+    searchQuery
+      ? Object.values(categories).flat().filter(e => e.includes(searchQuery))
+      : categories[activeCategory]
+  );
 
   function selectEmoji(emoji) {
-    dispatch('select', { emoji });
+    onselect?.({ detail: { emoji } });
   }
 
   function close() {
-    dispatch('close');
+    onclose?.();
   }
 </script>
 
@@ -39,7 +39,7 @@
       bind:value={searchQuery}
       class="search-input"
     />
-    <button class="close-btn" on:click={close}>×</button>
+    <button class="close-btn" onclick={close}>×</button>
   </div>
 
   {#if !searchQuery}
@@ -48,7 +48,7 @@
         <button
           class="category-btn"
           class:active={activeCategory === category}
-          on:click={() => activeCategory = category}
+          onclick={() => activeCategory = category}
         >
           {category}
         </button>
@@ -60,7 +60,7 @@
     {#each filteredEmojis as emoji}
       <button
         class="emoji-btn"
-        on:click={() => selectEmoji(emoji)}
+        onclick={() => selectEmoji(emoji)}
         title={emoji}
       >
         {emoji}

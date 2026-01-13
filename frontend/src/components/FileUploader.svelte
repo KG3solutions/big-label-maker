@@ -1,15 +1,14 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
   import { clipartStore } from '../stores/clipartStore.js';
 
-  const dispatch = createEventDispatcher();
+  let { oncomplete } = $props();
 
-  let file = null;
-  let name = '';
-  let tags = '';
-  let isDragging = false;
-  let uploading = false;
-  let error = null;
+  let file = $state(null);
+  let name = $state('');
+  let tags = $state('');
+  let isDragging = $state(false);
+  let uploading = $state(false);
+  let error = $state(null);
 
   const acceptedTypes = ['image/svg+xml', 'image/png', 'image/jpeg', 'image/gif', 'image/webp'];
   const maxSize = 5 * 1024 * 1024; // 5MB
@@ -76,7 +75,7 @@
 
     try {
       await clipartStore.upload(file, name, tags);
-      dispatch('complete');
+      oncomplete?.();
       clearFile();
     } catch (err) {
       error = err.message;
@@ -91,9 +90,9 @@
     class="drop-zone"
     class:dragging={isDragging}
     class:has-file={file}
-    on:dragover={handleDragOver}
-    on:dragleave={handleDragLeave}
-    on:drop={handleDrop}
+    ondragover={handleDragOver}
+    ondragleave={handleDragLeave}
+    ondrop={handleDrop}
     role="button"
     tabindex="0"
   >
@@ -103,7 +102,7 @@
           <img src={URL.createObjectURL(file)} alt="Preview" />
         {/if}
         <span class="file-name">{file.name}</span>
-        <button class="remove-btn" on:click={clearFile}>×</button>
+        <button class="remove-btn" onclick={clearFile}>×</button>
       </div>
     {:else}
       <div class="drop-content">
@@ -113,7 +112,7 @@
         <input
           type="file"
           accept=".svg,.png,.jpg,.jpeg,.gif,.webp,image/svg+xml,image/png,image/jpeg,image/gif,image/webp"
-          on:change={handleFileSelect}
+          onchange={handleFileSelect}
         />
       </div>
     {/if}
@@ -144,7 +143,7 @@
 
       <button
         class="btn-primary full-width"
-        on:click={handleUpload}
+        onclick={handleUpload}
         disabled={!name || uploading}
       >
         {uploading ? 'Uploading...' : 'Upload Clip Art'}

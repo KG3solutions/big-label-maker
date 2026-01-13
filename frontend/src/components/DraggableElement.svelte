@@ -1,31 +1,37 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
+  let {
+    id,
+    x = 50,
+    y = 50,
+    scale = 1,
+    rotation = 0,
+    selected = false,
+    containerWidth = 100,
+    containerHeight = 100,
+    printMode = false,
+    baseSize = 80,
+    onupdate,
+    onselect,
+    ondelete,
+    ondblclick,
+    children
+  } = $props();
 
-  export let id;
-  export let x = 50; // percentage
-  export let y = 50; // percentage
-  export let scale = 1;
-  export let rotation = 0;
-  export let selected = false;
-  export let containerWidth = 100;
-  export let containerHeight = 100;
-  export let printMode = false;
-  export let baseSize = 80; // Base size in pixels for scaling reference
+  let element = $state(null);
+  let isDragging = $state(false);
+  let isResizing = $state(false);
+  let resizeHandle = $state(null);
+  let startX = $state(0);
+  let startY = $state(0);
+  let startPosX = $state(0);
+  let startPosY = $state(0);
+  let startScale = $state(1);
+  let startElementX = $state(0);
+  let startElementY = $state(0);
 
-  const dispatch = createEventDispatcher();
-
-  let element;
-  let isDragging = false;
-  let isResizing = false;
-  let resizeHandle = null;
-  let startX, startY;
-  let startPosX, startPosY;
-  let startScale;
-  let startElementX, startElementY;
-
-  $: pixelX = (x / 100) * containerWidth;
-  $: pixelY = (y / 100) * containerHeight;
-  $: currentSize = baseSize * scale;
+  let pixelX = $derived((x / 100) * containerWidth);
+  let pixelY = $derived((y / 100) * containerHeight);
+  let currentSize = $derived(baseSize * scale);
 
   function getPageScale() {
     const transform = element?.closest('.page')?.style.transform;
@@ -36,7 +42,7 @@
   function handleClick(e) {
     if (printMode) return;
     e.stopPropagation();
-    dispatch('select');
+    onselect?.();
   }
 
   function handleMouseDown(e) {
@@ -46,7 +52,7 @@
     if (e.target.classList.contains('handle')) return;
 
     e.stopPropagation();
-    dispatch('select');
+    onselect?.();
 
     isDragging = true;
     startX = e.clientX;
@@ -71,7 +77,7 @@
     const newX = (newPixelX / containerWidth) * 100;
     const newY = (newPixelY / containerHeight) * 100;
 
-    dispatch('update', { x: newX, y: newY });
+    onupdate?.({ detail: { x: newX, y: newY } });
   }
 
   function handleMouseUp() {
@@ -154,7 +160,7 @@
       newY = ((startElementY + sizeDiff / 2) / containerHeight) * 100;
     }
 
-    dispatch('update', { scale: newScale, x: newX, y: newY });
+    onupdate?.({ detail: { scale: newScale, x: newX, y: newY } });
   }
 
   function handleResizeEnd() {
@@ -196,14 +202,14 @@
         break;
       case 'Delete':
       case 'Backspace':
-        dispatch('delete');
+        ondelete?.();
         return;
       default:
         return;
     }
 
     e.preventDefault();
-    dispatch('update', { x: newX, y: newY, scale: newScale });
+    onupdate?.({ detail: { x: newX, y: newY, scale: newScale } });
   }
 </script>
 
@@ -219,22 +225,23 @@
     top: {pixelY}px;
     transform: translate(-50%, -50%) rotate({rotation}deg);
   "
-  on:click={handleClick}
-  on:mousedown={handleMouseDown}
-  on:keydown={handleKeyDown}
+  onclick={handleClick}
+  onmousedown={handleMouseDown}
+  onkeydown={handleKeyDown}
+  ondblclick={ondblclick}
   role="button"
   tabindex={printMode ? -1 : 0}
   aria-label="Draggable element"
 >
-  <slot />
+  {@render children()}
 
   <!-- Always show handles on hover, highlighted when selected -->
   {#if !printMode}
     <div class="resize-handles" class:always-visible={selected}>
-      <div class="handle nw" on:mousedown={(e) => handleResizeStart(e, 'nw')} />
-      <div class="handle ne" on:mousedown={(e) => handleResizeStart(e, 'ne')} />
-      <div class="handle sw" on:mousedown={(e) => handleResizeStart(e, 'sw')} />
-      <div class="handle se" on:mousedown={(e) => handleResizeStart(e, 'se')} />
+      <div class="handle nw" onmousedown={(e) => handleResizeStart(e, 'nw')}></div>
+      <div class="handle ne" onmousedown={(e) => handleResizeStart(e, 'ne')}></div>
+      <div class="handle sw" onmousedown={(e) => handleResizeStart(e, 'sw')}></div>
+      <div class="handle se" onmousedown={(e) => handleResizeStart(e, 'se')}></div>
     </div>
   {/if}
 

@@ -1,5 +1,5 @@
 <script>
-  import { onMount, createEventDispatcher } from 'svelte';
+  import { onMount } from 'svelte';
   import {
     searchIcons,
     getIconData,
@@ -8,16 +8,16 @@
     parseIconId
   } from '../lib/iconifyApi.js';
 
-  const dispatch = createEventDispatcher();
+  let { onselect } = $props();
 
-  let searchQuery = '';
-  let selectedCollection = '';
-  let collections = [];
-  let results = [];
-  let loading = false;
-  let error = null;
-  let totalResults = 0;
-  let searchTimeout = null;
+  let searchQuery = $state('');
+  let selectedCollection = $state('');
+  let collections = $state([]);
+  let results = $state([]);
+  let loading = $state(false);
+  let error = $state(null);
+  let totalResults = $state(0);
+  let searchTimeout = $state(null);
 
   onMount(async () => {
     collections = await getPopularCollections();
@@ -68,14 +68,16 @@
     }
 
     // Dispatch event to add to label
-    dispatch('select', {
-      type: 'iconify',
-      prefix,
-      name,
-      iconId,
-      svgBody: iconData.body,
-      width: iconData.width,
-      height: iconData.height
+    onselect?.({
+      detail: {
+        type: 'iconify',
+        prefix,
+        name,
+        iconId,
+        svgBody: iconData.body,
+        width: iconData.width,
+        height: iconData.height
+      }
     });
   }
 
@@ -92,13 +94,13 @@
       type="text"
       placeholder="Search 275,000+ icons..."
       bind:value={searchQuery}
-      on:input={handleSearchInput}
+      oninput={handleSearchInput}
       class="search-input"
     />
 
     <select
       bind:value={selectedCollection}
-      on:change={handleCollectionChange}
+      onchange={handleCollectionChange}
       class="collection-select"
     >
       <option value="">All Collections</option>
@@ -129,7 +131,7 @@
         {@const { prefix, name } = parseIconId(iconId)}
         <button
           class="icon-item"
-          on:click={() => handleIconClick(iconId)}
+          onclick={() => handleIconClick(iconId)}
           title="{prefix}:{name}"
         >
           <img

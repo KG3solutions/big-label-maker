@@ -1,61 +1,61 @@
 <script>
-  import { onMount, afterUpdate } from 'svelte';
   import { labelStore, pageDimensions } from '../stores/labelStore.js';
   import { calculateAutoFitFontSize, inchesToPixels } from '../lib/autofit.js';
   import DraggableElement from './DraggableElement.svelte';
 
-  export let printMode = false;
-  export let mobileMode = false;
+  let { printMode = false, mobileMode = false } = $props();
 
   // Screen DPI for preview (actual print uses CSS inches)
   const PREVIEW_DPI = 96;
 
-  let containerEl;
-  let calculatedFontSize = 72;
+  let containerEl = $state(null);
+  let calculatedFontSize = $state(72);
 
   // Dynamic scale based on mode
-  $: previewScale = mobileMode ? 0.4 : 0.75;
+  let previewScale = $derived(mobileMode ? 0.4 : 0.75);
 
-  $: pageWidth = inchesToPixels($pageDimensions.width, PREVIEW_DPI);
-  $: pageHeight = inchesToPixels($pageDimensions.height, PREVIEW_DPI);
-  $: printableWidth = inchesToPixels($pageDimensions.printableWidth, PREVIEW_DPI);
-  $: printableHeight = inchesToPixels($pageDimensions.printableHeight, PREVIEW_DPI);
-  $: marginTop = inchesToPixels($pageDimensions.margins.top, PREVIEW_DPI);
-  $: marginLeft = inchesToPixels($pageDimensions.margins.left, PREVIEW_DPI);
+  let pageWidth = $derived(inchesToPixels($pageDimensions.width, PREVIEW_DPI));
+  let pageHeight = $derived(inchesToPixels($pageDimensions.height, PREVIEW_DPI));
+  let printableWidth = $derived(inchesToPixels($pageDimensions.printableWidth, PREVIEW_DPI));
+  let printableHeight = $derived(inchesToPixels($pageDimensions.printableHeight, PREVIEW_DPI));
+  let marginTop = $derived(inchesToPixels($pageDimensions.margins.top, PREVIEW_DPI));
+  let marginLeft = $derived(inchesToPixels($pageDimensions.margins.left, PREVIEW_DPI));
 
   // Recalculate font size when relevant properties change
-  $: if ($labelStore.autoFitEnabled && $labelStore.text && printableWidth > 0 && printableHeight > 0) {
-    calculatedFontSize = calculateAutoFitFontSize(
-      $labelStore.text,
-      printableWidth,
-      printableHeight,
-      {
-        fontFamily: $labelStore.fontFamily,
-        fontWeight: $labelStore.fontWeight,
-        fontStyle: $labelStore.fontStyle,
-        lineHeight: 1.15,
-        padding: 10
-      }
-    );
-  }
+  $effect(() => {
+    if ($labelStore.autoFitEnabled && $labelStore.text && printableWidth > 0 && printableHeight > 0) {
+      calculatedFontSize = calculateAutoFitFontSize(
+        $labelStore.text,
+        printableWidth,
+        printableHeight,
+        {
+          fontFamily: $labelStore.fontFamily,
+          fontWeight: $labelStore.fontWeight,
+          fontStyle: $labelStore.fontStyle,
+          lineHeight: 1.15,
+          padding: 10
+        }
+      );
+    }
+  });
 
-  $: fontSize = $labelStore.autoFitEnabled ? calculatedFontSize : $labelStore.manualFontSize;
+  let fontSize = $derived($labelStore.autoFitEnabled ? calculatedFontSize : $labelStore.manualFontSize);
 
-  $: textStyle = `
+  let textStyle = $derived(`
     font-family: ${$labelStore.fontFamily};
     font-size: ${fontSize}px;
     font-weight: ${$labelStore.fontWeight};
     font-style: ${$labelStore.fontStyle};
     color: ${$labelStore.textColor};
     text-align: ${$labelStore.textAlign};
-  `;
+  `);
 
   // Text position in pixels
-  $: textPixelX = ($labelStore.textX / 100) * pageWidth;
-  $: textPixelY = ($labelStore.textY / 100) * pageHeight;
+  let textPixelX = $derived(($labelStore.textX / 100) * pageWidth);
+  let textPixelY = $derived(($labelStore.textY / 100) * pageHeight);
 
   // Check if text is selected (using special id 'text')
-  $: textSelected = $labelStore.selectedLayerId === 'text';
+  let textSelected = $derived($labelStore.selectedLayerId === 'text');
 
   function handleLayerUpdate(id, updates) {
     labelStore.updateLayer(id, updates);
@@ -96,8 +96,8 @@
     <div
       class="page"
       bind:this={containerEl}
-      on:click={handleBackgroundClick}
-      on:keydown={(e) => e.key === 'Escape' && handleBackgroundClick()}
+      onclick={handleBackgroundClick}
+      onkeydown={(e) => e.key === 'Escape' && handleBackgroundClick()}
       role="presentation"
     >
     <!-- Margin guides (non-print) -->
@@ -110,7 +110,7 @@
           width: {printableWidth}px;
           height: {printableHeight}px;
         "
-      />
+      ></div>
     {/if}
 
     <!-- Main text (draggable) -->
@@ -123,15 +123,15 @@
       selected={textSelected}
       containerWidth={pageWidth}
       containerHeight={pageHeight}
-      on:update={handleTextUpdate}
-      on:select={handleTextSelect}
-      on:dblclick={handleTextDoubleClick}
+      onupdate={handleTextUpdate}
+      onselect={handleTextSelect}
+      ondblclick={handleTextDoubleClick}
       {printMode}
     >
       <div
         class="text-content"
         style={textStyle}
-        on:dblclick={handleTextDoubleClick}
+        ondblclick={handleTextDoubleClick}
       >
         {#each $labelStore.text.split('\n') as line}
           <div class="text-line">{line || '\u00A0'}</div>
@@ -150,9 +150,9 @@
         selected={$labelStore.selectedLayerId === layer.id}
         containerWidth={pageWidth}
         containerHeight={pageHeight}
-        on:update={(e) => handleLayerUpdate(layer.id, e.detail)}
-        on:select={() => labelStore.selectLayer(layer.id)}
-        on:delete={() => labelStore.removeLayer(layer.id)}
+        onupdate={(e) => handleLayerUpdate(layer.id, e.detail)}
+        onselect={() => labelStore.selectLayer(layer.id)}
+        ondelete={() => labelStore.removeLayer(layer.id)}
         {printMode}
       >
         {#if layer.type === 'emoji'}

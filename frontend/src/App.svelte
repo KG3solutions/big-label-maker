@@ -5,14 +5,13 @@
   import ClipArtLibrary from './components/ClipArtLibrary.svelte';
   import { labelStore } from './stores/labelStore.js';
 
-  export let embedMode = false;
+  let { embedMode = false } = $props();
 
-  let showLibrary = false;
-  let darkMode = false;
-  let isMobile = false;
-  let windowWidth = 0;
+  let showLibrary = $state(false);
+  let darkMode = $state(false);
+  let windowWidth = $state(0);
 
-  $: isMobile = windowWidth < 800 || embedMode;
+  let isMobile = $derived(windowWidth < 800 || embedMode);
 
   onMount(() => {
     // Check localStorage or system preference
@@ -116,27 +115,27 @@
       <h1>Big Label Maker</h1>
     </div>
     <nav class="toolbar">
-      <button class="btn-secondary" on:click={handleNew}>
+      <button class="btn-secondary" onclick={handleNew}>
         New
       </button>
-      <button class="btn-secondary" on:click={handleLoadDesign}>
+      <button class="btn-secondary" onclick={handleLoadDesign}>
         Load
       </button>
-      <button class="btn-secondary" on:click={handleSaveDesign}>
+      <button class="btn-secondary" onclick={handleSaveDesign}>
         Save
       </button>
       <div class="toolbar-divider"></div>
       <button
         class="btn-secondary"
         class:active={showLibrary}
-        on:click={() => showLibrary = !showLibrary}
+        onclick={() => showLibrary = !showLibrary}
       >
         Clip Art Library
       </button>
       <div class="toolbar-divider"></div>
       <button
         class="btn-icon theme-toggle"
-        on:click={toggleDarkMode}
+        onclick={toggleDarkMode}
         title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
       >
         {#if darkMode}
@@ -158,7 +157,7 @@
         {/if}
       </button>
       <div class="toolbar-divider"></div>
-      <button class="btn-primary" on:click={handlePrint}>
+      <button class="btn-primary" onclick={handlePrint}>
         Print
       </button>
     </nav>
@@ -175,7 +174,7 @@
 
     {#if showLibrary}
       <aside class="library-panel">
-        <ClipArtLibrary on:close={() => showLibrary = false} />
+        <ClipArtLibrary onclose={() => showLibrary = false} />
       </aside>
     {/if}
   </main>

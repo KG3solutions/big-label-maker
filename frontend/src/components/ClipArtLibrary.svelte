@@ -1,15 +1,15 @@
 <script>
-  import { onMount, createEventDispatcher } from 'svelte';
+  import { onMount } from 'svelte';
   import { clipartStore } from '../stores/clipartStore.js';
   import { labelStore } from '../stores/labelStore.js';
   import FileUploader from './FileUploader.svelte';
   import IconSearch from './IconSearch.svelte';
 
-  const dispatch = createEventDispatcher();
+  let { onclose } = $props();
 
-  let activeTab = 'icons'; // 'icons' or 'my-clipart'
-  let searchQuery = '';
-  let showUploader = false;
+  let activeTab = $state('icons'); // 'icons' or 'my-clipart'
+  let searchQuery = $state('');
+  let showUploader = $state(false);
 
   onMount(() => {
     clipartStore.fetch();
@@ -61,14 +61,14 @@
   }
 
   function close() {
-    dispatch('close');
+    onclose?.();
   }
 </script>
 
 <div class="clipart-library">
   <div class="library-header">
     <h2>Clip Art</h2>
-    <button class="close-btn" on:click={close}>×</button>
+    <button class="close-btn" onclick={close}>×</button>
   </div>
 
   <!-- Tab Navigation -->
@@ -76,14 +76,14 @@
     <button
       class="tab"
       class:active={activeTab === 'icons'}
-      on:click={() => activeTab = 'icons'}
+      onclick={() => activeTab = 'icons'}
     >
       Icon Search
     </button>
     <button
       class="tab"
       class:active={activeTab === 'my-clipart'}
-      on:click={() => activeTab = 'my-clipart'}
+      onclick={() => activeTab = 'my-clipart'}
     >
       My Uploads
     </button>
@@ -92,7 +92,7 @@
   <!-- Tab Content -->
   <div class="tab-content">
     {#if activeTab === 'icons'}
-      <IconSearch on:select={handleIconSelect} />
+      <IconSearch onselect={handleIconSelect} />
     {:else}
       <!-- My Clipart Tab -->
       <div class="my-clipart">
@@ -101,28 +101,28 @@
             type="text"
             placeholder="Search my clip art..."
             bind:value={searchQuery}
-            on:keydown={(e) => e.key === 'Enter' && handleSearch()}
+            onkeydown={(e) => e.key === 'Enter' && handleSearch()}
           />
-          <button class="btn-secondary" on:click={handleSearch}>Search</button>
+          <button class="btn-secondary" onclick={handleSearch}>Search</button>
         </div>
 
         <div class="upload-section">
           <button
             class="btn-primary full-width"
-            on:click={() => showUploader = !showUploader}
+            onclick={() => showUploader = !showUploader}
           >
             {showUploader ? 'Cancel Upload' : 'Upload New Clip Art'}
           </button>
 
           {#if showUploader}
-            <FileUploader on:complete={handleUploadComplete} />
+            <FileUploader oncomplete={handleUploadComplete} />
           {/if}
         </div>
 
         {#if $clipartStore.error}
           <div class="error-message">
             {$clipartStore.error}
-            <button on:click={() => clipartStore.clearError()}>Dismiss</button>
+            <button onclick={() => clipartStore.clearError()}>Dismiss</button>
           </div>
         {/if}
 
@@ -153,14 +153,14 @@
                   <div class="clipart-actions">
                     <button
                       class="btn-primary small"
-                      on:click={() => addToLabel(clipart)}
+                      onclick={() => addToLabel(clipart)}
                       title="Add to label"
                     >
                       +
                     </button>
                     <button
                       class="btn-danger small"
-                      on:click={() => handleDelete(clipart)}
+                      onclick={() => handleDelete(clipart)}
                       title="Delete"
                     >
                       x
