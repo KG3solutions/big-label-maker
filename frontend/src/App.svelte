@@ -9,6 +9,10 @@
 
   let showLibrary = false;
   let darkMode = false;
+  let isMobile = false;
+  let windowWidth = 0;
+
+  $: isMobile = windowWidth < 800 || embedMode;
 
   onMount(() => {
     // Check localStorage or system preference
@@ -19,6 +23,9 @@
       darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
     applyTheme();
+
+    // Set initial window width
+    windowWidth = window.innerWidth;
   });
 
   function applyTheme() {
@@ -101,7 +108,9 @@
   }
 </script>
 
-<div class="app no-print" class:embed-mode={embedMode}>
+<svelte:window bind:innerWidth={windowWidth} />
+
+<div class="app no-print" class:embed-mode={embedMode} class:mobile-mode={isMobile}>
   <header class="header">
     <div class="logo">
       <h1>Big Label Maker</h1>
@@ -161,7 +170,7 @@
     </aside>
 
     <section class="preview-area">
-      <PagePreview />
+      <PagePreview mobileMode={isMobile} />
     </section>
 
     {#if showLibrary}
@@ -281,132 +290,44 @@
     }
   }
 
-  /* Responsive / Embed mode - vertical stacked layout */
-  @media (max-width: 800px) {
-    .header {
-      flex-direction: column;
-      align-items: stretch;
-      padding: 0.5rem;
-      gap: 0.5rem;
-    }
-
-    .logo {
-      text-align: center;
-    }
-
-    .logo h1 {
-      font-size: 1rem;
-    }
-
-    .toolbar {
-      justify-content: center;
-      gap: 0.25rem;
-    }
-
-    .toolbar-divider {
-      display: none;
-    }
-
-    .toolbar button {
-      padding: 0.4rem 0.6rem;
-      font-size: 0.75rem;
-    }
-
-    .main {
-      flex-direction: column;
-      overflow-y: auto;
-      overflow-x: hidden;
-    }
-
-    .sidebar {
-      width: 100%;
-      min-width: unset;
-      border-right: none;
-      border-bottom: 1px solid var(--color-border);
-      order: 2; /* Text controls below preview */
-    }
-
-    .preview-area {
-      order: 1; /* Preview on top */
-      flex: none;
-      padding: 1rem;
-      min-height: 400px;
-    }
-
-    .library-panel {
-      width: 100%;
-      min-width: unset;
-      border-left: none;
-      border-top: 1px solid var(--color-border);
-      order: 3;
-      max-height: 300px;
-    }
-  }
-
-  /* Extra narrow for tight Notion embeds */
-  @media (max-width: 500px) {
-    .logo h1 {
-      font-size: 0.875rem;
-    }
-
-    .toolbar button {
-      padding: 0.35rem 0.5rem;
-      font-size: 0.7rem;
-    }
-
-    .theme-toggle {
-      width: 28px;
-      height: 28px;
-    }
-
-    .theme-toggle svg {
-      width: 16px;
-      height: 16px;
-    }
-
-    .preview-area {
-      min-height: 300px;
-      padding: 0.5rem;
-    }
-  }
-
-  /* Forced embed mode - vertical stacked layout regardless of viewport */
-  .app.embed-mode .header {
+  /* Mobile mode - vertical stacked layout (applies to both mobile and embed) */
+  .app.mobile-mode .header {
     flex-direction: column;
     align-items: stretch;
     padding: 0.5rem;
     gap: 0.5rem;
   }
 
-  .app.embed-mode .logo {
+  .app.mobile-mode .logo {
     text-align: center;
   }
 
-  .app.embed-mode .logo h1 {
+  .app.mobile-mode .logo h1 {
     font-size: 1rem;
   }
 
-  .app.embed-mode .toolbar {
+  .app.mobile-mode .toolbar {
     justify-content: center;
     gap: 0.25rem;
+    flex-wrap: wrap;
   }
 
-  .app.embed-mode .toolbar-divider {
+  .app.mobile-mode .toolbar-divider {
     display: none;
   }
 
-  .app.embed-mode .toolbar button {
+  .app.mobile-mode .toolbar button {
     padding: 0.4rem 0.6rem;
     font-size: 0.75rem;
   }
 
-  .app.embed-mode .main {
+  .app.mobile-mode .main {
     flex-direction: column;
     overflow-y: auto;
     overflow-x: hidden;
   }
 
-  .app.embed-mode .sidebar {
+  .app.mobile-mode .sidebar {
     width: 100%;
     min-width: unset;
     border-right: none;
@@ -414,19 +335,46 @@
     order: 2;
   }
 
-  .app.embed-mode .preview-area {
+  .app.mobile-mode .preview-area {
     order: 1;
     flex: none;
-    padding: 1rem;
-    min-height: 350px;
+    padding: 0.5rem;
+    min-height: auto;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 1rem;
+    padding-bottom: 0.5rem;
   }
 
-  .app.embed-mode .library-panel {
+  .app.mobile-mode .library-panel {
     width: 100%;
     min-width: unset;
     border-left: none;
     border-top: 1px solid var(--color-border);
     order: 3;
     max-height: 300px;
+  }
+
+  /* Extra narrow screens */
+  @media (max-width: 500px) {
+    .app.mobile-mode .logo h1 {
+      font-size: 0.875rem;
+    }
+
+    .app.mobile-mode .toolbar button {
+      padding: 0.3rem 0.5rem;
+      font-size: 0.65rem;
+    }
+
+    .app.mobile-mode .theme-toggle {
+      width: 28px;
+      height: 28px;
+    }
+
+    .app.mobile-mode .theme-toggle svg {
+      width: 16px;
+      height: 16px;
+    }
   }
 </style>

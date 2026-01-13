@@ -5,13 +5,16 @@
   import DraggableElement from './DraggableElement.svelte';
 
   export let printMode = false;
+  export let mobileMode = false;
 
   // Screen DPI for preview (actual print uses CSS inches)
   const PREVIEW_DPI = 96;
-  const PREVIEW_SCALE = 0.75; // Scale down for preview to fit on screen
 
   let containerEl;
   let calculatedFontSize = 72;
+
+  // Dynamic scale based on mode
+  $: previewScale = mobileMode ? 0.4 : 0.75;
 
   $: pageWidth = inchesToPixels($pageDimensions.width, PREVIEW_DPI);
   $: pageHeight = inchesToPixels($pageDimensions.height, PREVIEW_DPI);
@@ -87,7 +90,7 @@
 <div
   class="page-preview"
   class:print-mode={printMode}
-  style="--scale: {printMode ? 1 : PREVIEW_SCALE}; --page-width: {pageWidth}px; --page-height: {pageHeight}px; --scaled-width: {pageWidth * (printMode ? 1 : PREVIEW_SCALE)}px; --scaled-height: {pageHeight * (printMode ? 1 : PREVIEW_SCALE)}px;"
+  style="--scale: {printMode ? 1 : previewScale}; --page-width: {pageWidth}px; --page-height: {pageHeight}px; --scaled-width: {pageWidth * (printMode ? 1 : previewScale)}px; --scaled-height: {pageHeight * (printMode ? 1 : previewScale)}px;"
 >
   <div
     class="page"

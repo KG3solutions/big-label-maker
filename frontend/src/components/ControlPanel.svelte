@@ -490,59 +490,30 @@
     white-space: nowrap;
   }
 
-  /* Responsive / Embed mode - more compact layout */
-  @media (max-width: 800px) {
-    .control-panel {
-      padding: 0.75rem;
-    }
-
-    .section {
-      margin-bottom: 1rem;
-      padding-bottom: 1rem;
-    }
-
-    h2 {
-      font-size: 0.75rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .field {
-      margin-bottom: 0.5rem;
-    }
-
-    textarea {
-      min-height: 50px;
-    }
-
-    .margin-grid {
-      grid-template-columns: 1fr 50px 1fr;
-    }
-  }
-
-  /* Forced embed mode via html class */
-  :global(html.embed-mode) .control-panel {
+  /* Mobile/Embed mode - more compact layout */
+  :global(.app.mobile-mode) .control-panel {
     padding: 0.75rem;
   }
 
-  :global(html.embed-mode) .section {
+  :global(.app.mobile-mode) .section {
     margin-bottom: 1rem;
     padding-bottom: 1rem;
   }
 
-  :global(html.embed-mode) h2 {
+  :global(.app.mobile-mode) h2 {
     font-size: 0.75rem;
     margin-bottom: 0.75rem;
   }
 
-  :global(html.embed-mode) .field {
+  :global(.app.mobile-mode) .field {
     margin-bottom: 0.5rem;
   }
 
-  :global(html.embed-mode) textarea {
+  :global(.app.mobile-mode) textarea {
     min-height: 50px;
   }
 
-  :global(html.embed-mode) .margin-grid {
+  :global(.app.mobile-mode) .margin-grid {
     grid-template-columns: 1fr 50px 1fr;
   }
 </style>
