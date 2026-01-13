@@ -492,4 +492,33 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+
+  /* Responsive / Embed mode - more compact layout */
+  @media (max-width: 800px) {
+    .control-panel {
+      padding: 0.75rem;
+    }
+
+    .section {
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+    }
+
+    h2 {
+      font-size: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .field {
+      margin-bottom: 0.5rem;
+    }
+
+    textarea {
+      min-height: 50px;
+    }
+
+    .margin-grid {
+      grid-template-columns: 1fr 50px 1fr;
+    }
+  }
 </style>

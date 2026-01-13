@@ -191,6 +191,7 @@
     background: var(--color-surface);
     border-bottom: 1px solid var(--color-border);
     gap: 1rem;
+    flex-wrap: wrap;
   }
 
   .logo h1 {
@@ -204,6 +205,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    flex-wrap: wrap;
   }
 
   .toolbar-divider {
@@ -274,6 +276,95 @@
 
     .print-only {
       display: block !important;
+    }
+  }
+
+  /* Responsive / Embed mode - vertical stacked layout */
+  @media (max-width: 800px) {
+    .header {
+      flex-direction: column;
+      align-items: stretch;
+      padding: 0.5rem;
+      gap: 0.5rem;
+    }
+
+    .logo {
+      text-align: center;
+    }
+
+    .logo h1 {
+      font-size: 1rem;
+    }
+
+    .toolbar {
+      justify-content: center;
+      gap: 0.25rem;
+    }
+
+    .toolbar-divider {
+      display: none;
+    }
+
+    .toolbar button {
+      padding: 0.4rem 0.6rem;
+      font-size: 0.75rem;
+    }
+
+    .main {
+      flex-direction: column;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .sidebar {
+      width: 100%;
+      min-width: unset;
+      border-right: none;
+      border-bottom: 1px solid var(--color-border);
+      order: 2; /* Text controls below preview */
+    }
+
+    .preview-area {
+      order: 1; /* Preview on top */
+      flex: none;
+      padding: 1rem;
+      min-height: 400px;
+    }
+
+    .library-panel {
+      width: 100%;
+      min-width: unset;
+      border-left: none;
+      border-top: 1px solid var(--color-border);
+      order: 3;
+      max-height: 300px;
+    }
+  }
+
+  /* Extra narrow for tight Notion embeds */
+  @media (max-width: 500px) {
+    .logo h1 {
+      font-size: 0.875rem;
+    }
+
+    .toolbar button {
+      padding: 0.35rem 0.5rem;
+      font-size: 0.7rem;
+    }
+
+    .theme-toggle {
+      width: 28px;
+      height: 28px;
+    }
+
+    .theme-toggle svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .preview-area {
+      min-height: 300px;
+      padding: 0.5rem;
     }
   }
 </style>
