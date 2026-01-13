@@ -92,13 +92,14 @@
   class:print-mode={printMode}
   style="--scale: {printMode ? 1 : previewScale}; --page-width: {pageWidth}px; --page-height: {pageHeight}px; --scaled-width: {pageWidth * (printMode ? 1 : previewScale)}px; --scaled-height: {pageHeight * (printMode ? 1 : previewScale)}px;"
 >
-  <div
-    class="page"
-    bind:this={containerEl}
-    on:click={handleBackgroundClick}
-    on:keydown={(e) => e.key === 'Escape' && handleBackgroundClick()}
-    role="presentation"
-  >
+  <div class="page-wrapper">
+    <div
+      class="page"
+      bind:this={containerEl}
+      on:click={handleBackgroundClick}
+      on:keydown={(e) => e.key === 'Escape' && handleBackgroundClick()}
+      role="presentation"
+    >
     <!-- Margin guides (non-print) -->
     {#if !printMode && $labelStore.showGrid}
       <div
@@ -179,6 +180,7 @@
         {/if}
       </DraggableElement>
     {/each}
+    </div>
   </div>
 
   {#if !printMode}
@@ -198,13 +200,16 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    gap: 0.5rem;
+    width: 100%;
   }
 
-  .page-preview:not(.print-mode) {
-    /* Container sized to fit the scaled page */
+  .page-wrapper {
     width: var(--scaled-width);
-    margin: 0 auto;
+    height: var(--scaled-height);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
   }
 
   .page {
@@ -213,9 +218,15 @@
     background: white;
     box-shadow: var(--shadow-lg);
     position: relative;
-    transform-origin: top left;
+    transform-origin: top center;
     transform: scale(var(--scale));
     overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .print-mode .page-wrapper {
+    width: auto;
+    height: auto;
   }
 
   .print-mode .page {
