@@ -521,4 +521,31 @@
       grid-template-columns: 1fr 50px 1fr;
     }
   }
+
+  /* Forced embed mode via html class */
+  :global(html.embed-mode) .control-panel {
+    padding: 0.75rem;
+  }
+
+  :global(html.embed-mode) .section {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  :global(html.embed-mode) h2 {
+    font-size: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  :global(html.embed-mode) .field {
+    margin-bottom: 0.5rem;
+  }
+
+  :global(html.embed-mode) textarea {
+    min-height: 50px;
+  }
+
+  :global(html.embed-mode) .margin-grid {
+    grid-template-columns: 1fr 50px 1fr;
+  }
 </style>

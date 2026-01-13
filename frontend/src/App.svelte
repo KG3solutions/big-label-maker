@@ -5,6 +5,8 @@
   import ClipArtLibrary from './components/ClipArtLibrary.svelte';
   import { labelStore } from './stores/labelStore.js';
 
+  export let embedMode = false;
+
   let showLibrary = false;
   let darkMode = false;
 
@@ -99,7 +101,7 @@
   }
 </script>
 
-<div class="app no-print">
+<div class="app no-print" class:embed-mode={embedMode}>
   <header class="header">
     <div class="logo">
       <h1>Big Label Maker</h1>
@@ -366,5 +368,65 @@
       min-height: 300px;
       padding: 0.5rem;
     }
+  }
+
+  /* Forced embed mode - vertical stacked layout regardless of viewport */
+  .app.embed-mode .header {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .app.embed-mode .logo {
+    text-align: center;
+  }
+
+  .app.embed-mode .logo h1 {
+    font-size: 1rem;
+  }
+
+  .app.embed-mode .toolbar {
+    justify-content: center;
+    gap: 0.25rem;
+  }
+
+  .app.embed-mode .toolbar-divider {
+    display: none;
+  }
+
+  .app.embed-mode .toolbar button {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+  }
+
+  .app.embed-mode .main {
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .app.embed-mode .sidebar {
+    width: 100%;
+    min-width: unset;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    order: 2;
+  }
+
+  .app.embed-mode .preview-area {
+    order: 1;
+    flex: none;
+    padding: 1rem;
+    min-height: 350px;
+  }
+
+  .app.embed-mode .library-panel {
+    width: 100%;
+    min-width: unset;
+    border-left: none;
+    border-top: 1px solid var(--color-border);
+    order: 3;
+    max-height: 300px;
   }
 </style>
