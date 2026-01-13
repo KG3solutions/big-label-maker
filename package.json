@@ -8,9 +8,9 @@
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
     "dev": "npm run dev:backend & npm run dev:frontend",
-    "build": "cd frontend && npm run build",
+    "build": "cd frontend && npm install && npm run build && cd ../backend && npm install",
     "init-db": "cd backend && npm run init-db",
-    "start": "cd backend && npm start",
+    "start": "cd backend && node server.js",
     "setup": "npm run install:all && npm run init-db"
   },
   "dependencies": {
