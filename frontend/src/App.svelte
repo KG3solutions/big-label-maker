@@ -22,8 +22,11 @@
   let dragStartRatio = $state(0.67);
 
   // Calculate heights based on ratio (excluding header)
-  let mainHeight = $derived(windowHeight - 80); // Approximate header height
+  let headerHeight = $state(80); // Will be measured
+  let handleHeight = 40; // Approximate handle height
+  let mainHeight = $derived(windowHeight - headerHeight);
   let previewHeight = $derived(isMobile ? Math.round(mainHeight * previewRatio) : 0);
+  let sidebarHeight = $derived(isMobile ? mainHeight - previewHeight - handleHeight : 0);
 
   function handleDragStart(e) {
     if (!isMobile) return;
@@ -162,7 +165,7 @@
 />
 
 <div class="app no-print" class:embed-mode={embedMode} class:mobile-mode={isMobile}>
-  <header class="header">
+  <header class="header" bind:clientHeight={headerHeight}>
     <div class="logo">
       <h1>Big Label Maker</h1>
     </div>
@@ -242,7 +245,7 @@
         </span>
       </div>
 
-      <aside class="sidebar" style="flex: 1; overflow-y: auto;">
+      <aside class="sidebar" style="height: {sidebarHeight}px; overflow-y: auto;">
         <ControlPanel />
       </aside>
     {:else}
