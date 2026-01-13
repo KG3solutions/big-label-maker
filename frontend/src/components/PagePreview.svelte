@@ -47,23 +47,28 @@
     text-align: ${$labelStore.textAlign};
   `;
 
-  $: contentStyle = `
-    justify-content: ${$labelStore.verticalAlign === 'top' ? 'flex-start' : $labelStore.verticalAlign === 'bottom' ? 'flex-end' : 'center'};
-    align-items: ${$labelStore.textAlign === 'left' ? 'flex-start' : $labelStore.textAlign === 'right' ? 'flex-end' : 'center'};
-  `;
+  // Text position in pixels
+  $: textPixelX = ($labelStore.textX / 100) * pageWidth;
+  $: textPixelY = ($labelStore.textY / 100) * pageHeight;
+
+  // Check if text is selected (using special id 'text')
+  $: textSelected = $labelStore.selectedLayerId === 'text';
 
   function handleLayerUpdate(id, updates) {
     labelStore.updateLayer(id, updates);
   }
 
-  function handleTextClick(e) {
-    if (printMode) return;
-    e.stopPropagation();
+  function handleTextUpdate(e) {
+    const { x, y } = e.detail;
+    labelStore.setTextPosition(x, y);
+  }
 
-    // Deselect any layers
-    labelStore.deselectAll();
+  function handleTextSelect() {
+    labelStore.selectLayer('text');
+  }
 
-    // Focus the text input in the control panel and scroll it into view
+  function handleTextDoubleClick() {
+    // Focus the text input in the control panel
     setTimeout(() => {
       const textInput = document.getElementById('labelText');
       if (textInput) {
@@ -104,32 +109,31 @@
       />
     {/if}
 
-    <!-- Printable area -->
-    <div
-      class="printable-area"
-      style="
-        top: {marginTop}px;
-        left: {marginLeft}px;
-        width: {printableWidth}px;
-        height: {printableHeight}px;
-        {contentStyle}
-      "
+    <!-- Main text (draggable) -->
+    <DraggableElement
+      id="text"
+      x={$labelStore.textX}
+      y={$labelStore.textY}
+      scale={1}
+      rotation={0}
+      selected={textSelected}
+      containerWidth={pageWidth}
+      containerHeight={pageHeight}
+      on:update={handleTextUpdate}
+      on:select={handleTextSelect}
+      on:dblclick={handleTextDoubleClick}
+      {printMode}
     >
-      <!-- Main text -->
       <div
         class="text-content"
-        class:clickable={!printMode}
         style={textStyle}
-        on:click={handleTextClick}
-        on:keydown={(e) => e.key === 'Enter' && handleTextClick(e)}
-        role={printMode ? 'presentation' : 'button'}
-        tabindex={printMode ? -1 : 0}
+        on:dblclick={handleTextDoubleClick}
       >
         {#each $labelStore.text.split('\n') as line}
           <div class="text-line">{line || '\u00A0'}</div>
         {/each}
       </div>
-    </div>
+    </DraggableElement>
 
     <!-- Decoration layers -->
     {#each $labelStore.layers as layer (layer.id)}
@@ -223,34 +227,11 @@
     pointer-events: none;
   }
 
-  .printable-area {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
   .text-content {
-    width: 100%;
     word-wrap: break-word;
     overflow-wrap: break-word;
     line-height: 1.15;
-  }
-
-  .text-content.clickable {
-    cursor: pointer;
-    border-radius: 4px;
-    transition: outline 0.15s;
-  }
-
-  .text-content.clickable:hover {
-    outline: 2px dashed rgba(37, 99, 235, 0.4);
-    outline-offset: 8px;
-  }
-
-  .text-content.clickable:focus {
-    outline: 2px solid var(--color-primary);
-    outline-offset: 8px;
+    white-space: nowrap;
   }
 
   .text-line {

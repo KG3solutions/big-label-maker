@@ -29,7 +29,10 @@ function createLabelStore() {
     fontStyle: 'normal',
     textColor: '#000000',
     textAlign: 'center',
-    verticalAlign: 'middle',
+
+    // Text position (percentage of page)
+    textX: 50,
+    textY: 50,
 
     // Layers (emoji and clipart)
     layers: [],
@@ -60,7 +63,8 @@ function createLabelStore() {
     setFontStyle: (fontStyle) => update(s => ({ ...s, fontStyle })),
     setTextColor: (textColor) => update(s => ({ ...s, textColor })),
     setTextAlign: (textAlign) => update(s => ({ ...s, textAlign })),
-    setVerticalAlign: (verticalAlign) => update(s => ({ ...s, verticalAlign })),
+    setTextPosition: (x, y) => update(s => ({ ...s, textX: x, textY: y })),
+    centerText: () => update(s => ({ ...s, textX: 50, textY: 50 })),
 
     // Auto-fit actions
     setAutoFit: (enabled) => update(s => ({ ...s, autoFitEnabled: enabled })),
@@ -136,7 +140,8 @@ function createLabelStore() {
       fontStyle: 'normal',
       textColor: '#000000',
       textAlign: 'center',
-      verticalAlign: 'middle',
+      textX: 50,
+      textY: 50,
       layers: [],
       autoFitEnabled: true,
       manualFontSize: 72,

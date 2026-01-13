@@ -178,7 +178,7 @@
     </div>
 
     <div class="field">
-      <label>Horizontal Align</label>
+      <label>Text Align</label>
       <div class="button-group">
         <button
           class:active={$labelStore.textAlign === 'left'}
@@ -196,21 +196,10 @@
     </div>
 
     <div class="field">
-      <label>Vertical Align</label>
-      <div class="button-group">
-        <button
-          class:active={$labelStore.verticalAlign === 'top'}
-          on:click={() => labelStore.setVerticalAlign('top')}
-        >Top</button>
-        <button
-          class:active={$labelStore.verticalAlign === 'middle'}
-          on:click={() => labelStore.setVerticalAlign('middle')}
-        >Middle</button>
-        <button
-          class:active={$labelStore.verticalAlign === 'bottom'}
-          on:click={() => labelStore.setVerticalAlign('bottom')}
-        >Bottom</button>
-      </div>
+      <button class="btn-secondary full-width" on:click={() => labelStore.centerText()}>
+        Center Text on Page
+      </button>
+      <p class="hint">Drag the text on the preview to reposition it</p>
     </div>
 
     <div class="field">
@@ -441,6 +430,13 @@
 
   .full-width {
     width: 100%;
+  }
+
+  .hint {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    margin-top: 0.35rem;
+    text-align: center;
   }
 
   .layers-list {
