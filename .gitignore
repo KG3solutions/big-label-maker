@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Database files (will be recreated)
+*.db
+*.db-shm
+*.db-wal
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Uploads (user content)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Claude local settings
+.claude/
+
+# Other projects in this folder (not part of Big Label Maker)
+vibeship-spawner-skills/
+Blank Connectors/
+price-drop-extension/
+spawner-skills-explorer/
+wire-diagram-studio/

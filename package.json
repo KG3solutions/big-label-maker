@@ -1,0 +1,26 @@
+{
+  "name": "big-label-maker",
+  "version": "1.0.0",
+  "description": "Web app for designing single-page labels on 8.5\" x 11\" paper",
+  "private": true,
+  "scripts": {
+    "install:all": "cd backend && npm install && cd ../frontend && npm install",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "npm run dev:backend & npm run dev:frontend",
+    "build": "cd frontend && npm run build",
+    "init-db": "cd backend && npm run init-db",
+    "start": "cd backend && npm start",
+    "setup": "npm run install:all && npm run init-db"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "concurrently": "^9.2.1",
+    "tsx": "^4.21.0"
+  }
+}
