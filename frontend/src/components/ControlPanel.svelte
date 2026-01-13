@@ -259,13 +259,10 @@
               {:else if layer.type === 'clipart'}
                 <img src="/api/clipart/{layer.clipartId}/file" alt={layer.name} />
               {:else if layer.type === 'iconify'}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 {layer.width} {layer.height}"
-                  fill="currentColor"
-                >
-                  {@html layer.svgBody}
-                </svg>
+                <img
+                  src="https://api.iconify.design/{layer.prefix}/{layer.name}.svg"
+                  alt={layer.name}
+                />
               {/if}
             </span>
             <span class="layer-name">
