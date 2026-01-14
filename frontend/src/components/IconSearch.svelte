@@ -221,6 +221,9 @@
     width: 28px;
     height: 28px;
     object-fit: contain;
+    background: white;
+    border-radius: 4px;
+    padding: 2px;
   }
 
   .icon-name {
