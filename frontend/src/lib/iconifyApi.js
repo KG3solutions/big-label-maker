@@ -183,3 +183,51 @@ export function parseIconId(iconId) {
   const [prefix, name] = iconId.split(':');
   return { prefix, name };
 }
+
+/**
+ * Get icons from a specific collection (for browsing without search)
+ * @param {string} prefix - Collection prefix (e.g., 'mdi')
+ * @param {number} limit - Max icons to return
+ * @returns {Promise<{icons: string[], total: number}>}
+ */
+export async function getCollectionIcons(prefix, limit = 64) {
+  try {
+    // First get the collection info to know total count
+    const collections = await getCollections();
+    const collection = collections[prefix];
+    if (!collection) {
+      return { icons: [], total: 0 };
+    }
+
+    // Fetch the collection's icon list
+    const response = await fetch(`${API_BASE}/collection?prefix=${prefix}`);
+    if (!response.ok) throw new Error('Failed to fetch collection');
+
+    const data = await response.json();
+
+    // Icons can be in 'icons' array or 'uncategorized' array
+    let iconNames = [];
+
+    if (data.icons) {
+      iconNames = data.icons;
+    } else if (data.uncategorized) {
+      iconNames = data.uncategorized;
+    } else if (data.categories) {
+      // Some collections organize icons by category
+      for (const category of Object.values(data.categories)) {
+        iconNames.push(...category);
+      }
+    }
+
+    // Limit results and format as full icon IDs
+    const icons = iconNames.slice(0, limit).map(name => `${prefix}:${name}`);
+
+    return {
+      icons,
+      total: collection.total || iconNames.length
+    };
+  } catch (error) {
+    console.error('Iconify getCollectionIcons error:', error);
+    return { icons: [], total: 0 };
+  }
+}

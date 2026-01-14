@@ -5,6 +5,7 @@
     getIconData,
     getIconUrl,
     getPopularCollections,
+    getCollectionIcons,
     parseIconId
   } from '../lib/iconifyApi.js';
 
@@ -81,9 +82,35 @@
     });
   }
 
-  function handleCollectionChange() {
+  async function handleCollectionChange() {
     if (searchQuery.trim()) {
+      // If there's a search query, search within the collection
       performSearch();
+    } else if (selectedCollection) {
+      // No search query but collection selected - browse the collection
+      await browseCollection();
+    } else {
+      // No collection selected and no search - clear results
+      results = [];
+      totalResults = 0;
+    }
+  }
+
+  async function browseCollection() {
+    if (!selectedCollection) return;
+
+    loading = true;
+    error = null;
+
+    try {
+      const data = await getCollectionIcons(selectedCollection, 64);
+      results = data.icons;
+      totalResults = data.total;
+    } catch (err) {
+      error = 'Failed to load collection. Please try again.';
+      results = [];
+    } finally {
+      loading = false;
     }
   }
 </script>
@@ -149,7 +176,7 @@
     </div>
   {:else}
     <div class="empty-state">
-      Search for icons above.<br>
+      Search for icons or select a collection to browse.<br>
       Try: star, arrow, home, user, heart
     </div>
   {/if}
